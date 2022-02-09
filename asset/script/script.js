@@ -1,0 +1,5 @@
+function claculator(alements) {
+	return{
+        
+    }
+}
