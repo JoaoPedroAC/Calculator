@@ -1,54 +1,57 @@
+/* FALTA IMPEDIR OS OPERADORES DE SE DUPLICAREM */
 function calculator() {
 	let buttons = document.querySelectorAll('button');
-	// const button = document.querySelector('button');
 	const screen = document.querySelector('.screen');
+	const defaultColor = getComputedStyle(screen).backgroundColor;
 	// aqui é onde armazeno os valores que serao exibidos no HTML
 	const array = [];
-
+	// aqui é a factory function
 	function actions() {
 		return {
-			// funcao para limpar os numeros
-			clean() {
-				if (array.includes('C')) return (array.length = 0);
-				if (array.includes('<<')) {
-					return (array.length -= 2);
-				}
-			},
 			// para escrever no HTML
-			printing() {
-				screen.innerHTML = array.join('');
+			display() {
+				screen.style.backgroundColor = defaultColor;
+				const strings = array.join('');
+				screen.innerHTML = strings;
 			},
-			// area das contas
-			// ainda ta dando um problema que ele não soma
+			// onde executa as contas
 			count() {
 				array.pop();
-				let acumulator = array.join('');
-				let conta = parseInt(acumulator);
-				return conta;
-			},
-			// ao apertar o botao '=' sera efetuado a conta e aparecerá na tela, fora q tbm salvara no array
-			igual() {
-				if (array.includes('=')) {
-					let result = this.count();
-					screen.innerHTML = result;
-					array.length = 0;
-					array.push(result);
-				}
+				let numerics = array.join('');
+				const calc = eval(numerics);
+				return calc;
 			},
 		};
 	}
 	// area dos botoes e seus respectivos valores, aqui eh onde tudo funciona
 	for (let botoes of buttons) {
 		botoes.addEventListener('click', function () {
-			// essa const é para caso de NaN ele retornará o os valores nao numericos
-			const errors = !parseInt(botoes.value)
-				? botoes.value
-				: parseInt(botoes.value);
-			array.push(errors);
-			// declaracao das functions
-			actions().clean();
-			actions().printing();
-			actions().igual();
+			// this so funciona corretamente em tipo fuction e nao em array fuction
+			array.push(this.value);
+			// apaga tudo
+			if (this.value === 'C') {
+				screen.style.backgroundColor = defaultColor;
+				array.length -= array.length;
+			}
+			// include checa a existencia de um valor e retorna booleano
+			// apaga string por string
+			if (array.includes('<<') && array.length > 1) {
+				array.length -= 2;
+			}
+			// checa para ver se esta tudo certo
+			try {
+				if (this.value === '=') {
+					let result = actions().count();
+					screen.innerHTML = result;
+					array.length = 0;
+					array.push(result);
+				}
+			} catch (e) {
+				array.length -= array.length;
+				screen.style.backgroundColor = 'red';
+				return (screen.innerHTML = 'ERRO - Por favor digite corretamente!');
+			}
+			actions().display();
 		});
 	}
 }
